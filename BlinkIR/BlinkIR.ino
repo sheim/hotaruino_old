@@ -25,10 +25,21 @@ int phase = 15;
 int phase_next = 0;
 int omega = pi/100;
 int stim = 0;
+int threshold = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 Serial.begin(9600);
+for (int i=1;i<10;i++) {
+  threshold = threshold + analogRead(IR_SENSOR_PIN);
+  Serial.println(threshold);
+  delay(50);
+}
+threshold = threshold/10; // Sample ambient light 100 times and average out to find a decent threshold.
+Serial.println(threshold);
+threshold = threshold - 100; // add some safeguard, in case 100 is too much (i.e. room is too bright)
+Serial.print("Threshold set at: ");
+Serial.println(threshold);
 }
 
 // the loop function runs over and over again forever
@@ -36,7 +47,7 @@ void loop() {
 
 //      Serial.println(phase);
       sensor_value = analogRead(IR_SENSOR_PIN);
-      if(sensor_value<700) {
+      if(sensor_value<threshold) {
         stim = 1;
       }
       else {
@@ -51,10 +62,7 @@ void loop() {
         analogWrite(GREEN_LED_PIN, 0);
         analogWrite(IR_LED_PIN, 0);
       }
-
-      if(sensor_value<700) {
-      Serial.println(sensor_value);
-      }
+      
       delay(10);
 
 }
