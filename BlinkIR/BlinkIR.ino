@@ -13,10 +13,14 @@
   by Scott Fitzgerald
  */
 
-int sensorPin = A0;
-int sensorValue = 0;
-int ledPin = 9; // LED connected to digital pin 9
-int infraPin = 10;
+int IR_SENSOR_PIN = A0;
+int GREEN_LED_PIN = 9; // LED connected to digital pin 9
+int IR_LED_PIN = 10;
+
+int sensor_value = 0;
+double phase = 0;
+double phase_next = 0;
+
 // the setup function runs once when you press reset or power the board
 void setup() {
 Serial.begin(9600);
@@ -24,18 +28,19 @@ Serial.begin(9600);
 
 // the loop function runs over and over again forever
 void loop() {
-  
-      analogWrite(ledPin, 255);
-      analogWrite(infraPin, 255);
+
+      phase_
+      analogWrite(GREEN_LED_PIN, 255);
+      analogWrite(IR_LED_PIN, 255);
       delay(50);
-      sensorValue = analogRead(sensorPin);
+      sensorValue = analogRead(IR_SENSOR_PIN);
       Serial.println(sensorValue);
       delay(1000);
 
-      analogWrite(ledPin, 0);
-      analogWrite(infraPin, 0);
+      analogWrite(GREEN_LED_PIN, 0);
+      analogWrite(IR_LED_PIN, 0);
       delay(50);
-      sensorValue = analogRead(sensorPin);
+      sensorValue = analogRead(IR_SENSOR_PIN);
       Serial.println(sensorValue);
       delay(1000);
 
