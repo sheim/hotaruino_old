@@ -13,13 +13,18 @@
   by Scott Fitzgerald
  */
 
-int IR_SENSOR_PIN = A0;
-int GREEN_LED_PIN = 9; // LED connected to digital pin 9
-int IR_LED_PIN = 10;
+const int IR_SENSOR_PIN = A0;
+const int GREEN_LED_PIN = 9;
+const int IR_LED_PIN    = 10;
+
+const int pi =  314;
+const int pi2 =  628;
 
 int sensor_value = 0;
-double phase = 0;
-double phase_next = 0;
+int phase = 15;
+int phase_next = 0;
+int omega = pi/100;
+int stim = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -29,19 +34,27 @@ Serial.begin(9600);
 // the loop function runs over and over again forever
 void loop() {
 
-      phase_
-      analogWrite(GREEN_LED_PIN, 255);
-      analogWrite(IR_LED_PIN, 255);
-      delay(50);
-      sensorValue = analogRead(IR_SENSOR_PIN);
-      Serial.println(sensorValue);
-      delay(1000);
+//      Serial.println(phase);
+      sensor_value = analogRead(IR_SENSOR_PIN);
+      if(sensor_value<700) {
+        stim = 1;
+      }
+      else {
+        stim = 0;
+      }
+      phase_next = phase_next + omega - stim*sin(phase_next);
+      if ((phase_next % pi2) < 5) {
+        analogWrite(GREEN_LED_PIN, 255);
+        analogWrite(IR_LED_PIN, 255);
+      }
+      else {
+        analogWrite(GREEN_LED_PIN, 0);
+        analogWrite(IR_LED_PIN, 0);
+      }
 
-      analogWrite(GREEN_LED_PIN, 0);
-      analogWrite(IR_LED_PIN, 0);
-      delay(50);
-      sensorValue = analogRead(IR_SENSOR_PIN);
-      Serial.println(sensorValue);
-      delay(1000);
+      if(sensor_value<700) {
+      Serial.println(sensor_value);
+      }
+      delay(10);
 
 }
