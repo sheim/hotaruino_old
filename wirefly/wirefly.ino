@@ -1,5 +1,5 @@
 /*
-  
+
 */
 
 const int IR_SENSOR_PIN = A0;
@@ -29,57 +29,60 @@ long flash_time = 200;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-delay(10); // wait for things to start up
-Serial.begin(9600);
+  delay(10); // wait for things to start up
+  Serial.begin(9600);
 
-analogWrite(IR_LED_PIN, 0); // make sure things are off
-delay(10);
-for (int i=1;i<10;i++) { // get threshold value
-  threshold = threshold + analogRead(IR_SENSOR_PIN);
-  delay(50);
-}
-threshold = threshold/10; // Sample ambient light 100 times and average out to find a decent threshold.
-threshold = threshold - 50; // TODO: add some safeguard, in case 50 is too much (i.e. room is too bright)
-Serial.print("Threshold set at: ");
-Serial.println(threshold);
+  analogWrite(IR_LED_PIN, 0); // make sure things are off
+  delay(10);
+  for (int i = 1; i < 10; i++) { // get threshold value
+    threshold = threshold + analogRead(IR_SENSOR_PIN);
+    delay(50);
+  }
+  threshold = threshold / 10; // Sample ambient light 100 times and average out to find a decent threshold.
+  threshold = threshold - 50; // TODO: add some safeguard, in case 50 is too much (i.e. room is too bright)
+  Serial.print("Threshold set at: ");
+  Serial.println(threshold);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  
-      // Check timing
-      unsigned long current_millis = millis();
-      // Toggle flash
-      if(current_millis<(flash_start+flash_time)) { // flash
-        analogWrite(GREEN_LED_PIN, 255);
-        analogWrite(IR_LED_PIN, 255);
-      }
-      else {
-        analogWrite(GREEN_LED_PIN, 0); // turn off
-        analogWrite(IR_LED_PIN, 0);
-      }
-      // Check if sensors catches data
-      sensor_value = analogRead(IR_SENSOR_PIN);
-      // increment dynamics
-      if(current_millis - previous_millis >= TIME_STEP) { // new timestep
-        previous_millis = current_millis; // reset time
-        if(sensor_value<threshold) {    // switch between active dynamics and passive
-         phase = phase + omega + A*eps;// Increment phase by eps.
-       }
-       else {
-        phase = phase + omega;
-      }
+
+  // Check timing
+  unsigned long current_millis = millis();
+  // Toggle flash
+  if (current_millis < (flash_start + flash_time)) { // flash
+    analogWrite(GREEN_LED_PIN, 255);
+    analogWrite(IR_LED_PIN, 255);
+  }
+  else {
+    analogWrite(GREEN_LED_PIN, 0); // turn off
+    analogWrite(IR_LED_PIN, 0);
+  }
+  // Check if sensors catches data
+  sensor_value = analogRead(IR_SENSOR_PIN);
+  // increment dynamics
+  if (current_millis - previous_millis >= TIME_STEP) { // new timestep
+    previous_millis = current_millis; // reset time
+    if (sensor_value < threshold) { // switch between active dynamics and passive
+      phase = phase + omega + A * eps; // Increment phase by eps.
+    }
+    else {
+      phase = phase + omega;
     }
 
-    // check if firing, if yes, reset. // TODO: can update this probably just when you enter a new timestep. Nothing happens otherwise anyway.
+    // check if firing, if yes, reset.
     x = sin(phase);
-    if(x>X_RESET) {
+    if (x > X_RESET) {
       x = 0;
       phase = 0;
       flash_start = current_millis;
     }
 
-      // just some visiblity stuff
-      iteration_counter = iteration_counter+1;
-      if(iteration_counter%12==0) { Serial.println(sensor_value); }
-    }
+  }
+
+  // just some visiblity stuff
+  iteration_counter = iteration_counter + 1;
+  if (iteration_counter % 12 == 0) {
+    Serial.println(sensor_value);
+  }
+}
