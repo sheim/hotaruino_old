@@ -1,28 +1,35 @@
 /*
   
- */
+*/
 
 const int IR_SENSOR_PIN = A0;
-const int GREEN_LED_PIN = 9;
-const int IR_LED_PIN    = 10;
+const int GREEN_LED_PIN = 10;
+const int IR_LED_PIN    = 9;
 
 // NOTE: Arduino UNO (and most others) treat doubles as floats.
 const double PI_HALF = 1.5; // chopped off just short of accurate, to avoid reaching a point where function is no longer concave-down.
 
 double sensor_value = 0;
 double x = 0; // state "x", with x = f(phase), and belonging to [0;f(PI_HALF)], with resetting at f(PI_HALF).
-double xReset = 0.997; // chopped off just short of f(PI_HALF)
+double X_RESET = 0.997; // chopped off just short of f(PI_HALF)
 double phase = 0;
 double omega = 0.01; // need to tune this, depends on loop speed
 double eps   = 0.05;
-double A = 0; //excitation level
+double A = 1; //excitation level
 double threshold = 0;
 int iteration_counter = 1;
+
+// Timing
+unsigned long previous_millis = 0;
+unsigned long TIME_STEP = 10;
+// Flash timing
+long flash_start = 0;
+long flash_time = 200;
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-delay(50); // wait for things to start up
+delay(10); // wait for things to start up
 Serial.begin(9600);
 
 analogWrite(IR_LED_PIN, 0); // make sure things are off
@@ -39,31 +46,40 @@ Serial.println(threshold);
 
 // the loop function runs over and over again forever
 void loop() {
-
-      // turn off light
-      analogWrite(GREEN_LED_PIN, 0);
-      analogWrite(IR_LED_PIN, 0);
-      // increment dynamics
-      sensor_value = analogRead(IR_SENSOR_PIN);
-      if(sensor_value<threshold) {
-        // Increment phase by eps. Handle and other stuff
-        phase = phase + omega + A*eps;
-      }
-      else {
-        phase = phase + omega;
-      }
-
-      // check if firing, if yes, reset
-      x = sin(phase);
-      if(x>xReset) {
-        x = 0;
-        phase = 0;
+  
+      // Check timing
+      unsigned long current_millis = millis();
+      // Toggle flash
+      if(current_millis<(flash_start+flash_time)) { // flash
         analogWrite(GREEN_LED_PIN, 255);
         analogWrite(IR_LED_PIN, 255);
       }
-      delay(30);
+      else {
+        analogWrite(GREEN_LED_PIN, 0); // turn off
+        analogWrite(IR_LED_PIN, 0);
+      }
+      // Check if sensors catches data
+      sensor_value = analogRead(IR_SENSOR_PIN);
+      // increment dynamics
+      if(current_millis - previous_millis >= TIME_STEP) { // new timestep
+        previous_millis = current_millis; // reset time
+        if(sensor_value<threshold) {    // switch between active dynamics and passive
+         phase = phase + omega + A*eps;// Increment phase by eps.
+       }
+       else {
+        phase = phase + omega;
+      }
+    }
+
+    // check if firing, if yes, reset. // TODO: can update this probably just when you enter a new timestep. Nothing happens otherwise anyway.
+    x = sin(phase);
+    if(x>X_RESET) {
+      x = 0;
+      phase = 0;
+      flash_start = current_millis;
+    }
 
       // just some visiblity stuff
       iteration_counter = iteration_counter+1;
       if(iteration_counter%12==0) { Serial.println(sensor_value); }
-}
+    }
