@@ -10,13 +10,15 @@ const int RECEIVER_LED_PIN = 7;
 // NOTE: Arduino UNO (and most others) treat doubles as floats.
 const double PI_HALF = 1.5; // chopped off just short of accurate, to avoid reaching a point where function is no longer concave-down.
 
+bool flash_received = false;
+
 double sensor_value = 0;
 double x = 0; // state "x", with x = f(phase), and belonging to [0;f(PI_HALF)], with resetting at f(PI_HALF).
 double X_RESET = 0.997; // chopped off just short of f(PI_HALF)
 double phase = 0;
 double omega = 0.01; // need to tune this, depends on loop speed
 double eps   = 0.05;
-double A = 1; //excitation level
+double A = 1.2; //excitation level
 double threshold = 0;
 int iteration_counter = 1;
 
@@ -64,18 +66,22 @@ void loop() {
 
   // Check if sensors catches data
   sensor_value = analogRead(IR_SENSOR_PIN);
+  if (sensor_value < threshold) {
+    flash_received = true;       // NOTE: could make this incrementable, so it the number of flashes seen is also important.
+    digitalWrite(RECEIVER_LED_PIN, HIGH);
+  }
+  else {
+    digitalWrite(RECEIVER_LED_PIN, LOW);
+  }
   // increment dynamics
   if (current_millis - previous_millis >= TIME_STEP) { // new timestep
     previous_millis = current_millis; // reset time
-    if (sensor_value < threshold) { // switch between active dynamics and passive
+    if (flash_received) { // switch between active dynamics and passive
       phase = phase + omega + A * eps; // Increment phase by eps.
-      digitalWrite(RECEIVER_LED_PIN, HIGH);
     }
     else {
       phase = phase + omega;
-      digitalWrite(RECEIVER_LED_PIN, LOW);
     }
-
     // check if firing, if yes, reset.
     x = sin(phase);
     if (x > X_RESET) {
@@ -83,7 +89,7 @@ void loop() {
       phase = 0;
       flash_start = current_millis;
     }
-
+    flash_received = false; // reset boolean for next time-step
   }
 
   // just some visiblity stuff
