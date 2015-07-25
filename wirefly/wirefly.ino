@@ -5,6 +5,7 @@
 const int IR_SENSOR_PIN = A0;
 const int GREEN_LED_PIN = 10;
 const int IR_LED_PIN    = 9;
+const int RECEIVER_LED_PIN = 7;
 
 // NOTE: Arduino UNO (and most others) treat doubles as floats.
 const double PI_HALF = 1.5; // chopped off just short of accurate, to avoid reaching a point where function is no longer concave-down.
@@ -31,6 +32,8 @@ long flash_time = 200;
 void setup() {
   delay(10); // wait for things to start up
   Serial.begin(9600);
+  
+  pinMode(RECEIVER_LED_PIN, OUTPUT);
 
   analogWrite(IR_LED_PIN, 0); // make sure things are off
   delay(10);
@@ -58,6 +61,7 @@ void loop() {
     analogWrite(GREEN_LED_PIN, 0); // turn off
     analogWrite(IR_LED_PIN, 0);
   }
+
   // Check if sensors catches data
   sensor_value = analogRead(IR_SENSOR_PIN);
   // increment dynamics
@@ -65,9 +69,11 @@ void loop() {
     previous_millis = current_millis; // reset time
     if (sensor_value < threshold) { // switch between active dynamics and passive
       phase = phase + omega + A * eps; // Increment phase by eps.
+      digitalWrite(RECEIVER_LED_PIN, HIGH);
     }
     else {
       phase = phase + omega;
+      digitalWrite(RECEIVER_LED_PIN, LOW);
     }
 
     // check if firing, if yes, reset.
