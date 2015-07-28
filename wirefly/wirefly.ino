@@ -5,7 +5,7 @@
 const int IR_SENSOR_PIN = A0;
 const int GREEN_LED_PIN = 10;
 const int IR_LED_PIN    = 9;
-const int RECEIVER_LED_PIN = 7;
+const int RECEIVER_LED_PIN = 13;
 
 // NOTE: Arduino UNO (and most others) treat doubles as floats.
 const double PI_HALF = 1.5; // chopped off just short of accurate, to avoid reaching a point where function is no longer concave-down.
