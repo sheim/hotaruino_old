@@ -2,16 +2,16 @@
 
 */
 
-const int IR_SENSOR_PIN = A0;
-const int GREEN_LED_PIN = 8;
+const int IR_SENSOR_PIN = A3;
+const int GREEN_LED_PIN = 12;
 const int IR_LED_PIN    = 9;
 const int RECEIVER_LED_PIN = 13;
-const int POT_THRESH_PIN = A1;
+const int POT_THRESH_PIN = A0;
 int POT_THRESH_ZERO = 0; // though not technically constants because we define them in startup, should be thought of constants.
 int THRESH_ZERO = 0;
 
 // Coupling
-const int POT_COUPL_PIN = A2;
+const int POT_COUPL_PIN = A1;
 double POT_COUPL_LOW = 0;
 double POT_COUPL_HIGH = 0;
 const double COUPL_UPPER = 3;
