@@ -111,7 +111,7 @@ void loop() {
   // Adjust threshold and frequency
   threshold = THRESH_ZERO + analogRead(POT_THRESH_PIN) - POT_THRESH_ZERO; // Could check first if potentiometer has moved, but I'm guessing it's not really faster
   
-  frequency = mapDouble(analogRead(POT_FREQ_PIN),0,1023,FREQ_LOWER,FREQ_UPPER);
+  // frequency = mapDouble(analogRead(POT_FREQ_PIN),0,1023,FREQ_LOWER,FREQ_UPPER);
   omega = PI_HALF*frequency;
 
   // Check timing
