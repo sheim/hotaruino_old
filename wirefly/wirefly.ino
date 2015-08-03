@@ -39,6 +39,7 @@ double phase = 0;
 double omega = 0.01; // need to tune this, depends on loop speed
 double eps   = 0.05;
 double coupling = 1.2; //excitation level
+double noise = 0;
 
 int threshold = 0; // threshold is read from analog, so int
 int iteration_counter = 1;
@@ -145,18 +146,19 @@ void loop() {
   coupling = mapDouble(pot_reading,0,1023,COUPL_LOWER,COUPL_UPPER);
   analogWrite(COUPL_LED_PIN, mapDouble(coupling,COUPL_LOWER,COUPL_UPPER,0,255));
 
+  noise = mapDouble(double(random(0,500)),0,500,0,0.5);
   if (current_millis - previous_millis >= TIME_STEP) { // new timestep
     previous_millis = current_millis; // reset time
     if (flash_received) { // switch between active dynamics and passive
       if (phase < X_RESET/2) {
-        phase = phase + (omega + coupling/2)*double(TIME_STEP)/1000;
+        phase = phase + (omega + coupling/2 + noise)*double(TIME_STEP)/1000;
       }
       else {
-        phase = phase + (omega + coupling*2)*double(TIME_STEP)/1000;
+        phase = phase + (omega + coupling*2 + noise)*double(TIME_STEP)/1000;
       }
     }
     else {
-      phase = phase + omega*double(TIME_STEP)/1000;
+      phase = phase + (omega + noise)*double(TIME_STEP)/1000;
     }
     // check if firing, if yes, reset.
     x = phase;
