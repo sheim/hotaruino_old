@@ -17,12 +17,14 @@ double POT_COUPL_HIGH = 0;
 const double COUPL_UPPER = 3;
 const double COUPL_LOWER = 0;
 
-// Base frequency
-const int POT_FREQ_PIN = A3;
-double POT_FREQ_LOW = 0;
-double POT_FREQ_HIGH = 0;
-const double FREQ_UPPER = 3;
-const double FREQ_LOWER = 0.5;
+const int COUPL_LED_PIN = 11;
+
+// // Base frequency
+// const int POT_FREQ_PIN = A3;
+// double POT_FREQ_LOW = 0;
+// double POT_FREQ_HIGH = 0;
+// const double FREQ_UPPER = 3;
+// const double FREQ_LOWER = 0.5;
 
 // NOTE: Arduino UNO (and most others) treat doubles as floats.
 const double PI_HALF = 1.5; // chopped off just short of accurate, to avoid reaching a point where function is no longer concave-down.
@@ -32,7 +34,7 @@ bool flash_received = false;
 double sensor_value = 0;
 double x = 0; // state "x", with x = f(phase), and belonging to [0;f(PI_HALF)], with resetting at f(PI_HALF).
 double X_RESET = 0.997; // chopped off just short of f(PI_HALF)
-double frequency = 1;
+double frequency = 0.5;
 double phase = 0;
 double omega = 0.01; // need to tune this, depends on loop speed
 double eps   = 0.05;
@@ -56,6 +58,7 @@ void setup() {
   
   pinMode(RECEIVER_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
+  pinMode(COUPL_LED_PIN, OUTPUT);
   
   analogWrite(IR_LED_PIN, 0); // make sure things are off
   delay(10);
@@ -75,7 +78,7 @@ void setup() {
   Serial.println(threshold);
 
   // omega is set
-  omega = PI_HALF*(frequency); // phase/T, T = 1/f
+  omega = (frequency); // phase/T, T = 1/f
 
   // Coupling set up
 
@@ -90,15 +93,15 @@ void setup() {
   trippleBlink(GREEN_LED_PIN);
 
 // Frequency set up
-  Serial.println("Set frequency potentiometer to min.");
-  digitalWrite(GREEN_LED_PIN,HIGH);
-  delay(3000);
-  POT_FREQ_LOW = analogRead(POT_FREQ_PIN);
-  Serial.println("Set frequency potentiometer to max.");
-  digitalWrite(GREEN_LED_PIN,LOW);
-  delay(3000);
-  POT_FREQ_HIGH = analogRead(POT_FREQ_PIN);
-  trippleBlink(GREEN_LED_PIN);
+  // Serial.println("Set frequency potentiometer to min.");
+  // digitalWrite(GREEN_LED_PIN,HIGH);
+  // delay(3000);
+  // POT_FREQ_LOW = analogRead(POT_FREQ_PIN);
+  // Serial.println("Set frequency potentiometer to max.");
+  // digitalWrite(GREEN_LED_PIN,LOW);
+  // delay(3000);
+  // POT_FREQ_HIGH = analogRead(POT_FREQ_PIN);
+  // trippleBlink(GREEN_LED_PIN);
 
 // Finish set up
   Serial.println(" Set up finished.");
@@ -140,6 +143,7 @@ void loop() {
   // Check coupling weight here, so that each time-step delay is roughly the same
   double pot_reading = analogRead(POT_COUPL_PIN);
   coupling = mapDouble(pot_reading,0,1023,COUPL_LOWER,COUPL_UPPER);
+  analogWrite(COUPL_LED_PIN, mapDouble(coupling,COUPL_LOWER,COUPL_UPPER,0,255));
 
   if (current_millis - previous_millis >= TIME_STEP) { // new timestep
     previous_millis = current_millis; // reset time
