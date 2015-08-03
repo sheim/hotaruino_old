@@ -14,7 +14,7 @@ int THRESH_ZERO = 0;
 const int POT_COUPL_PIN = A2;
 double POT_COUPL_LOW = 0;
 double POT_COUPL_HIGH = 0;
-const double COUPL_UPPER = 1;
+const double COUPL_UPPER = 2;
 const double COUPL_LOWER = 0;
 
 const int COUPL_LED_PIN = 11;
@@ -146,12 +146,12 @@ void loop() {
   coupling = mapDouble(pot_reading,0,1023,COUPL_LOWER,COUPL_UPPER);
   analogWrite(COUPL_LED_PIN, mapDouble(coupling,COUPL_LOWER,COUPL_UPPER,0,255));
 
-  noise = mapDouble(double(random(0,500)),0,500,0,0.5);
+  noise = mapDouble(double(random(0,500)),0,500,-1,1);
   if (current_millis - previous_millis >= TIME_STEP) { // new timestep
     previous_millis = current_millis; // reset time
     if (flash_received) { // switch between active dynamics and passive
       if (phase < X_RESET/2) {
-        phase = phase + (omega + coupling/2 + noise)*double(TIME_STEP)/1000;
+        phase = phase + (omega + coupling + noise)*double(TIME_STEP)/1000;
       }
       else {
         phase = phase + (omega + coupling*2 + noise)*double(TIME_STEP)/1000;
