@@ -14,7 +14,7 @@ int THRESH_ZERO = 0;
 const int POT_COUPL_PIN = A2;
 double POT_COUPL_LOW = 0;
 double POT_COUPL_HIGH = 0;
-const double COUPL_UPPER = 2;
+const double COUPL_UPPER = 1;
 const double COUPL_LOWER = 0;
 
 const int COUPL_LED_PIN = 11;
@@ -48,7 +48,7 @@ unsigned long previous_millis = 0;
 unsigned long TIME_STEP = 10; // in milliseconds
 // Flash timing
 long flash_start = 0;
-long flash_time = 200;
+long flash_time = 100;
 
 
 // the setup function runs once when you press reset or power the board
@@ -148,13 +148,18 @@ void loop() {
   if (current_millis - previous_millis >= TIME_STEP) { // new timestep
     previous_millis = current_millis; // reset time
     if (flash_received) { // switch between active dynamics and passive
-      phase = phase + (omega + coupling)*double(TIME_STEP)/1000; // Increment phase by eps.
+      if (phase < X_RESET/2) {
+        phase = phase + (omega + coupling/2)*double(TIME_STEP)/1000;
+      }
+      else {
+        phase = phase + (omega + coupling*2)*double(TIME_STEP)/1000;
+      }
     }
     else {
       phase = phase + omega*double(TIME_STEP)/1000;
     }
     // check if firing, if yes, reset.
-    x = phase*phase*phase;
+    x = phase;
     if (x > X_RESET) {
       x = 0;
       phase = 0;
