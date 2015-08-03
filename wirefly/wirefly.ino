@@ -14,7 +14,7 @@ int THRESH_ZERO = 0;
 const int POT_COUPL_PIN = A2;
 double POT_COUPL_LOW = 0;
 double POT_COUPL_HIGH = 0;
-const double COUPL_UPPER = 3;
+const double COUPL_UPPER = 2;
 const double COUPL_LOWER = 0;
 
 const int COUPL_LED_PIN = 11;
@@ -154,7 +154,7 @@ void loop() {
       phase = phase + omega*double(TIME_STEP)/1000;
     }
     // check if firing, if yes, reset.
-    x = sin(phase);
+    x = phase*phase*phase;
     if (x > X_RESET) {
       x = 0;
       phase = 0;
