@@ -146,7 +146,7 @@ void loop() {
   coupling = mapDouble(pot_reading,0,1023,COUPL_LOWER,COUPL_UPPER);
   analogWrite(COUPL_LED_PIN, mapDouble(coupling,COUPL_LOWER,COUPL_UPPER,0,255));
 
-  noise = mapDouble(double(random(0,500)),0,500,-1,1);
+  noise = mapDouble(double(random(0, 500)), 0, 500, -1, 1);
   if (current_millis - previous_millis >= TIME_STEP) { // new timestep
     previous_millis = current_millis; // reset time
     if (flash_received) { // switch between active dynamics and passive

@@ -1,6 +1,5 @@
-/*
 
-*/
+#include <IRremote.h>
 
 const int IR_SENSOR_PIN = 10;
 const int GREEN_LED_PIN = 8;
@@ -56,14 +55,18 @@ long flash_time = 100;
 void setup() {
   delay(10); // wait for things to start up
   Serial.begin(9600);
-  
+
+  IrReceiver.begin(IR_SENSOR_PIN);
+
   pinMode(RECEIVER_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
   pinMode(COUPL_LED_PIN, OUTPUT);
-  
+
   analogWrite(IR_LED_PIN, 0); // make sure things are off
   delay(10);
+
   double thresh = 0;
+
   for (int i = 1; i < 10; i++) { // get threshold value
     thresh = thresh + analogRead(IR_SENSOR_PIN);
     delay(50);
@@ -92,17 +95,6 @@ void setup() {
   delay(3000);
   POT_COUPL_HIGH = analogRead(POT_LEFT_PIN);
   trippleBlink(GREEN_LED_PIN);
-
-// Frequency set up
-  // Serial.println("Set frequency potentiometer to min.");
-  // digitalWrite(GREEN_LED_PIN,HIGH);
-  // delay(3000);
-  // POT_FREQ_LOW = analogRead(POT_FREQ_PIN);
-  // Serial.println("Set frequency potentiometer to max.");
-  // digitalWrite(GREEN_LED_PIN,LOW);
-  // delay(3000);
-  // POT_FREQ_HIGH = analogRead(POT_FREQ_PIN);
-  // trippleBlink(GREEN_LED_PIN);
 
 // Finish set up
   Serial.println(" Set up finished.");
@@ -148,7 +140,9 @@ void loop() {
 
   noise = mapDouble(double(random(0,500)),0,500,-1,1);
   if (current_millis - previous_millis >= TIME_STEP) { // new timestep
+
     previous_millis = current_millis; // reset time
+
     if (flash_received) { // switch between active dynamics and passive
       if (phase < X_RESET/2) {
         phase = phase + (omega + coupling + noise)*double(TIME_STEP)/1000;
